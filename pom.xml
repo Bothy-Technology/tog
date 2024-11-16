@@ -9,6 +9,7 @@
     <artifactId>tog</artifactId>
     <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
+
     <modules>
         <module>annotations</module>
         <module>processor</module>
@@ -20,11 +21,13 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
 
         <auto-service.version>1.1.1</auto-service.version>
         <compile-testing.version>0.21.0</compile-testing.version>
+        <error_prone.version>2.35.1</error_prone.version>
         <guava.version>33.3.1-jre</guava.version>
         <javapoet.version>0.5.0</javapoet.version>
         <junit.version>5.11.3</junit.version>
@@ -33,6 +36,33 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>15</source>
+                    <target>15</target>
+                    <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <arg>-XDcompilePolicy=simple</arg>
+                        <arg>--should-stop=ifError=FLOW</arg>
+                        <arg>-Xplugin:ErrorProne</arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>${error_prone.version}</version>
+                        </path>
+                        <!-- Other annotation processors go here.
+
+                        If 'annotationProcessorPaths' is set, processors will no longer be
+                        discovered on the regular -classpath; see also 'Using Error Prone
+                        together with other annotation processors' below. -->
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -85,6 +115,11 @@
                 <groupId>com.google.auto.service</groupId>
                 <artifactId>auto-service</artifactId>
                 <version>${auto-service.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_core</artifactId>
+                <version>${error_prone.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
