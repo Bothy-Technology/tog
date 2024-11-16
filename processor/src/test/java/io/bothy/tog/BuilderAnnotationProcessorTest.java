@@ -23,4 +23,19 @@ class BuilderAnnotationProcessorTest {
                 .generatedSourceFile("test.example.PersonBuilder")
                 .hasSourceEquivalentTo(expectedSource);
     }
+
+    @Test
+    void canCreateARecordBuilderWithMultipleFields() {
+        JavaFileObject source = JavaFileObjects.forResource("multiFieldRecord/inputs/Person.java");
+
+        final var compilation =
+                javac().withProcessors(new BuilderAnnotationProcessor()).compile(source);
+
+        assertThat(compilation).succeeded();
+
+        final var expectedSource = JavaFileObjects.forResource("multiFieldRecord/expected/PersonBuilder.java");
+        assertThat(compilation)
+                .generatedSourceFile("test.example.PersonBuilder")
+                .hasSourceEquivalentTo(expectedSource);
+    }
 }
