@@ -24,6 +24,7 @@
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
 
         <auto-service.version>1.1.1</auto-service.version>
         <compile-testing.version>0.21.0</compile-testing.version>
@@ -31,6 +32,7 @@
         <guava.version>33.3.1-jre</guava.version>
         <javapoet.version>0.5.0</javapoet.version>
         <junit.version>5.11.3</junit.version>
+        <palantir-java-format.version>2.46.0</palantir-java-format.version>
 
     </properties>
 
@@ -56,6 +58,29 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless-maven-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <java>
+
+                        <palantirJavaFormat>
+                            <version>${palantir-java-format.version}</version>
+                        </palantirJavaFormat>
+
+                        <importOrder/>
+                        <removeUnusedImports/>
+                    </java>
+                </configuration>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -64,8 +89,6 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>${maven-compiler-plugin.version}</version>
                     <configuration>
-                        <source>15</source>
-                        <target>15</target>
                         <encoding>UTF-8</encoding>
                         <compilerArgs>
                             <arg>-XDcompilePolicy=simple</arg>
@@ -130,6 +153,11 @@
                 <groupId>com.google.testing.compile</groupId>
                 <artifactId>compile-testing</artifactId>
                 <version>${compile-testing.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.palantir.javaformat</groupId>
+                <artifactId>palantir-java-format</artifactId>
+                <version>${palantir-java-format.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.palantir.javapoet</groupId>

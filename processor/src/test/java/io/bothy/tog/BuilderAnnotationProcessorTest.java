@@ -1,23 +1,23 @@
 package io.bothy.tog;
 
-import com.google.testing.compile.JavaFileObjects;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
 
-class BuilderAnnotationProcessorTest {
+import com.google.testing.compile.JavaFileObjects;
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
+class BuilderAnnotationProcessorTest {
 
     @Test
     void canCreateARecordBuilderWithOneField() {
-        final var recordSource = JavaFileObjects.forSourceString("test.example.Person", """
+        final var recordSource = JavaFileObjects.forSourceString(
+                "test.example.Person",
+                """
                 package test.example;
-                
+
                 import io.bothy.tog.Builder;
-                
+
                 @Builder
                 record Person(String name) {
                   public static PersonBuilder builder() {
@@ -26,53 +26,35 @@ class BuilderAnnotationProcessorTest {
                 }
                 """);
 
-        final var compilation = javac()
-                .withProcessors(new BuilderAnnotationProcessor())
-                .withOptions(List.of(
-
-                ))
+        final var compilation = javac().withProcessors(new BuilderAnnotationProcessor())
+                .withOptions(List.of())
                 .compile(recordSource);
 
         assertThat(compilation).succeeded();
         assertThat(compilation)
                 .generatedSourceFile("test.example.PersonBuilder")
-                .hasSourceEquivalentTo(JavaFileObjects.forSourceString("test.example.Person", """
+                .hasSourceEquivalentTo(
+                        JavaFileObjects.forSourceString(
+                                "test.example.Person",
+                                """
                         package test.example;
-                        
+
                         import java.lang.String;
-                        
+
                         public final class PersonBuilder {
-                        
+
                           public static WithName builder() {
                             return name -> () -> new Person(name);
                           }
-                        
+
                           public interface WithName {
                             Build withName(String name);
                           }
-                        
+
                           public interface Build {
                             Person build();
                           }
                         }
                         """));
     }
-
-    //                         package test.example;
-    //
-    //                        public final class PersonBuilder implements PersonBuilder.WithName, PersonBuilder.Build {
-    //
-    //                          public static WithName builder() {
-    //                            return name -> () -> new Person(name);
-    //                          }
-    //
-    //                          public interface WithName {
-    //                            Build withName(String name);
-    //                          }
-    //
-    //                          public interface Build {
-    //                            Person build();
-    //                          }
-    //
-    //                        }
 }

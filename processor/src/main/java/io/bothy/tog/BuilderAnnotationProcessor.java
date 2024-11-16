@@ -1,5 +1,10 @@
 package io.bothy.tog;
 
+import static javax.lang.model.element.Modifier.ABSTRACT;
+import static javax.lang.model.element.Modifier.FINAL;
+import static javax.lang.model.element.Modifier.PUBLIC;
+import static javax.lang.model.element.Modifier.STATIC;
+
 import com.google.auto.service.AutoService;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
@@ -8,7 +13,9 @@ import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
-
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
@@ -17,30 +24,19 @@ import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-
-import static javax.lang.model.element.Modifier.ABSTRACT;
-import static javax.lang.model.element.Modifier.FINAL;
-import static javax.lang.model.element.Modifier.PUBLIC;
-import static javax.lang.model.element.Modifier.STATIC;
 
 @SupportedAnnotationTypes("io.bothy.tog.Builder")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
 public class BuilderAnnotationProcessor extends AbstractProcessor {
 
-    public static final Converter<String, String> LOWER_CAMEL_TO_UPPER_CAMEL = CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_CAMEL);
+    public static final Converter<String, String> LOWER_CAMEL_TO_UPPER_CAMEL =
+            CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_CAMEL);
 
     @Override
-    public boolean process(
-            final Set<? extends TypeElement> annotations,
-            final RoundEnvironment roundEnv
-    ) {
+    public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 
         final var elements = processingEnv.getElementUtils();
-        final var types = processingEnv.getTypeUtils();
 
         for (final var annotation : annotations) {
             final var annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
@@ -61,13 +57,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var typeElement = (TypeElement) annotatedElement;
                 final List<? extends RecordComponentElement> recordComponents = typeElement.getRecordComponents();
 
-//                final var imports = new HashSet<String>();
-//
-//                for (final var recordComponentElement : recordComponents.reversed()) {
-//
-//                }
-
-
                 final RecordComponentElement recordComponentElement = recordComponents.get(0);
                 final var fieldType = recordComponentElement.asType();
 
@@ -87,9 +76,12 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var builderFactoryMethod = MethodSpec.methodBuilder("builder")
                         .addModifiers(PUBLIC, STATIC)
                         .returns(withInterfaceName)
-                        .addCode("""
+                        .addCode(
+                                """
                                 return $1L -> () -> new $2L($1L);
-                                """, fieldName, targetClassName)
+                                """,
+                                fieldName,
+                                targetClassName)
                         .build();
 
                 final var builderClassSpec = TypeSpec.classBuilder(targetClassName + "Builder")
@@ -103,8 +95,8 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
 
                 final var targetPackageName = targetPackage.getQualifiedName().toString();
 
-                final var builderJavaFile = JavaFile.builder(targetPackageName, builderClassSpec)
-                        .build();
+                final var builderJavaFile =
+                        JavaFile.builder(targetPackageName, builderClassSpec).build();
 
                 try {
                     builderJavaFile.writeTo(processingEnv.getFiler());
