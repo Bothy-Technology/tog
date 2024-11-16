@@ -32,7 +32,7 @@
         <guava.version>33.3.1-jre</guava.version>
         <javapoet.version>0.5.0</javapoet.version>
         <junit.version>5.11.3</junit.version>
-        <palantir-java-format.version>2.46.0</palantir-java-format.version>
+        <palantir-java-format.version>2.50.0</palantir-java-format.version>
 
     </properties>
 
