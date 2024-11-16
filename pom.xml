@@ -71,6 +71,9 @@
                 </executions>
                 <configuration>
                     <java>
+                        <licenseHeader>
+                            <file>license-header</file>
+                        </licenseHeader>
 
                         <palantirJavaFormat>
                             <version>${palantir-java-format.version}</version>
