@@ -8,12 +8,15 @@ import static javax.lang.model.element.Modifier.STATIC;
 import com.google.auto.service.AutoService;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
+import com.google.common.base.Joiner;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
 import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -57,43 +60,58 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var typeElement = (TypeElement) annotatedElement;
                 final List<? extends RecordComponentElement> recordComponents = typeElement.getRecordComponents();
 
-                final RecordComponentElement recordComponentElement = recordComponents.get(0);
-                final var fieldType = recordComponentElement.asType();
+                final var targetPackage = elements.getPackageOf(annotatedElement);
+                final var targetPackageName = targetPackage.getQualifiedName().toString();
 
-                final var fieldName = recordComponentElement.getSimpleName();
-                final var upperCamelCaseFieldName = LOWER_CAMEL_TO_UPPER_CAMEL.convert(fieldName.toString());
+                final var imports = new HashSet<String>();
+                final var interfaces = new ArrayList<TypeSpec>();
+                final var fieldNames = new ArrayList<String>();
 
-                final var withInterfaceName = ClassName.bestGuess("With" + upperCamelCaseFieldName);
-                final var withInterface = TypeSpec.interfaceBuilder(withInterfaceName)
-                        .addModifiers(PUBLIC)
-                        .addMethod(MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
-                                .addModifiers(PUBLIC, ABSTRACT)
-                                .addParameter(TypeName.get(fieldType), fieldName.toString())
-                                .returns(buildInterfaceClassName)
-                                .build())
-                        .build();
+                final var builderClassName = targetClassName + "Builder";
+
+                var returnType = ClassName.get(targetPackageName, builderClassName, "Build");
+
+                for (final var recordComponentElement : recordComponents.reversed()) {
+                    final var fieldName = recordComponentElement.getSimpleName();
+                    final var fieldType = recordComponentElement.asType();
+                    final var upperCamelCaseFieldName = LOWER_CAMEL_TO_UPPER_CAMEL.convert(fieldName.toString());
+                    final var withInterfaceName =
+                            ClassName.get(targetPackageName, builderClassName, "With" + upperCamelCaseFieldName);
+                    final var withInterface = TypeSpec.interfaceBuilder(withInterfaceName)
+                            .addModifiers(PUBLIC)
+                            .addMethod(MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
+                                    .addModifiers(PUBLIC, ABSTRACT)
+                                    .addParameter(TypeName.get(fieldType), fieldName.toString())
+                                    .returns(returnType)
+                                    .build())
+                            .build();
+                    returnType = withInterfaceName;
+                    interfaces.add(withInterface);
+                    imports.add(fieldType.toString());
+                    fieldNames.addFirst(fieldName.toString());
+                }
+
+                final var builderCallChain = Joiner.on(" -> ").join(fieldNames);
+                final var constructorArgs = Joiner.on(", ").join(fieldNames);
 
                 final var builderFactoryMethod = MethodSpec.methodBuilder("builder")
                         .addModifiers(PUBLIC, STATIC)
-                        .returns(withInterfaceName)
+                        .returns(returnType)
                         .addCode(
                                 """
-                                return $1L -> () -> new $2L($1L);
+                                return $1L -> () -> new $2L($3L);
                                 """,
-                                fieldName,
-                                targetClassName)
+                                builderCallChain,
+                                targetClassName,
+                                constructorArgs)
                         .build();
 
-                final var builderClassSpec = TypeSpec.classBuilder(targetClassName + "Builder")
+                final var builderClassSpec = TypeSpec.classBuilder(builderClassName)
                         .addModifiers(PUBLIC, FINAL)
                         .addMethod(builderFactoryMethod)
-                        .addType(withInterface)
+                        .addTypes(interfaces.reversed())
                         .addType(buildInterfaceSpec)
                         .build();
-
-                final var targetPackage = elements.getPackageOf(annotatedElement);
-
-                final var targetPackageName = targetPackage.getQualifiedName().toString();
 
                 final var builderJavaFile =
                         JavaFile.builder(targetPackageName, builderClassSpec).build();
