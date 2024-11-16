@@ -20,14 +20,17 @@
         </dependency>
 
         <dependency>
-            <groupId>com.palantir.javapoet</groupId>
-            <artifactId>javapoet</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.palantir.javapoet</groupId>
+            <artifactId>javapoet</artifactId>
         </dependency>
 
         <dependency>
