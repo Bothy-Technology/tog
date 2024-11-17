@@ -30,7 +30,6 @@ import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.processing.AbstractProcessor;
@@ -77,7 +76,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var targetPackage = elements.getPackageOf(annotatedElement);
                 final var targetPackageName = targetPackage.getQualifiedName().toString();
 
-                final var imports = new HashSet<String>();
                 final var interfaces = new ArrayList<TypeSpec>();
                 final var fieldNames = new ArrayList<String>();
 
@@ -101,7 +99,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                             .build();
                     returnType = withInterfaceName;
                     interfaces.add(withInterface);
-                    imports.add(fieldType.toString());
                     fieldNames.addFirst(fieldName.toString());
                 }
 
