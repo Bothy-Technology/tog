@@ -12,11 +12,26 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog.examples.secondaryconstructor;
+package io.bothy.tog.examples.records.person;
 
-public record Region(String name, String shortcode) {
-    //    @Builder
-    Region(String name) {
-        this(name, name.substring(0, 2));
+import static org.assertj.core.api.Assertions.assertThat;
+
+import org.junit.jupiter.api.Test;
+
+class PersonTest {
+
+    @Test
+    void canBuildPerson() {
+        final var person = Person.builder()
+                .withName("John Doe")
+                .withAge(62)
+                .withAdult(true)
+                .withAddress("Toulouse Street")
+                .build();
+
+        assertThat(person).extracting("name").isEqualTo("John Doe");
+        assertThat(person).extracting("age").isEqualTo(62);
+        assertThat(person).extracting("adult").isEqualTo(true);
+        assertThat(person).extracting("address").isEqualTo("Toulouse Street");
     }
 }

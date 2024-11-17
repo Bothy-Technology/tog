@@ -12,13 +12,38 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog.examples.person;
+package io.bothy.tog.examples.classes.builder;
 
 import io.bothy.tog.Builder;
 
-@Builder
-public record Person(String name, int age, boolean adult, String address) {
-    public static PersonBuilder.WithName builder() {
-        return PersonBuilder.builder();
+public class Circle {
+
+    private double radius;
+    private Point center;
+
+    public static CircleBuilder.WithRadius builder() {
+        return CircleBuilder.builder();
+    }
+
+    @Builder
+    public Circle(double radius, Point center) {
+        this.radius = radius;
+        this.center = center;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
+    public Point getCenter() {
+        return center;
+    }
+
+    public void setCenter(Point center) {
+        this.center = center;
     }
 }
