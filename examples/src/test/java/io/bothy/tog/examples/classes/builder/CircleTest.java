@@ -12,30 +12,23 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog.examples.sb;
+package io.bothy.tog.examples.classes.builder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class EventTest {
+class CircleTest {
 
     @Test
-    void canCreateEventWithNestedValues() {
-        final var event = Event.builder()
-                .withName("Red vs Blue")
-                .withMarkets(List.of(Market.builder()
-                        .withName("H2H")
-                        .withSelections(List.of(
-                                Selection.builder().withName("Red").build(),
-                                Selection.builder().withName("Blue").build()))
-                        .build()))
+    void testCircle() {
+        final var circle = Circle.builder()
+                .withRadius(10.0)
+                .withCenter(Point.builder().withX(2.3).withY(4.5).build())
                 .build();
 
-        assertThat(event)
-                .isEqualTo(new Event(
-                        "Red vs Blue",
-                        List.of(new Market("H2H", List.of(new Selection("Red"), new Selection("Blue"))))));
+        assertThat(circle).extracting(Circle::getRadius).isEqualTo(10.0);
+        assertThat(circle).extracting(Circle::getCenter).extracting(Point::getX).isEqualTo(2.3);
+        assertThat(circle).extracting(Circle::getCenter).extracting(Point::getY).isEqualTo(4.5);
     }
 }

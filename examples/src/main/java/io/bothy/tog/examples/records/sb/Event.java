@@ -12,13 +12,14 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog.examples.sb;
+package io.bothy.tog.examples.records.sb;
 
 import io.bothy.tog.Builder;
+import java.util.List;
 
 @Builder
-public record Selection(String name) {
-    public static SelectionBuilder.WithName builder() {
-        return SelectionBuilder.builder();
+public record Event(String name, List<Market> markets) {
+    public static EventBuilder.WithName builder() {
+        return EventBuilder.builder();
     }
 }
