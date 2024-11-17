@@ -13,6 +13,7 @@
     <modules>
         <module>annotations</module>
         <module>processor</module>
+        <module>it</module>
     </modules>
 
     <properties>
@@ -26,6 +27,7 @@
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
 
+        <assertj.version>3.26.3</assertj.version>
         <auto-service.version>1.1.1</auto-service.version>
         <compile-testing.version>0.21.0</compile-testing.version>
         <error_prone.version>2.35.1</error_prone.version>
@@ -172,6 +174,13 @@
                 <groupId>com.palantir.javapoet</groupId>
                 <artifactId>javapoet</artifactId>
                 <version>${javapoet.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-bom</artifactId>
+                <version>${assertj.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.junit</groupId>
