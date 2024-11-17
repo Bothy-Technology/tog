@@ -34,6 +34,7 @@
         <guava.version>33.3.1-jre</guava.version>
         <javapoet.version>0.5.0</javapoet.version>
         <junit.version>5.11.3</junit.version>
+        <mockito.version>5.14.2</mockito.version>
         <palantir-java-format.version>2.50.0</palantir-java-format.version>
 
     </properties>
@@ -186,6 +187,13 @@
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
                 <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-bom</artifactId>
+                <version>${mockito.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

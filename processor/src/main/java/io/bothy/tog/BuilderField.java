@@ -14,11 +14,17 @@
  */
 package io.bothy.tog;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.lang.model.element.Name;
+import javax.lang.model.element.RecordComponentElement;
+import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 
-@Target({ElementType.CONSTRUCTOR, ElementType.TYPE})
-@Retention(RetentionPolicy.SOURCE)
-public @interface Builder {}
+record BuilderField(Name fieldName, TypeMirror fieldType) {
+    static BuilderField from(final RecordComponentElement recordComponent) {
+        return new BuilderField(recordComponent.getSimpleName(), recordComponent.asType());
+    }
+
+    public static BuilderField from(final VariableElement variable) {
+        return new BuilderField(variable.getSimpleName(), variable.asType());
+    }
+}
