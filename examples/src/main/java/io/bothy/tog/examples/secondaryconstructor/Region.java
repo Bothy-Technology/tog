@@ -12,13 +12,11 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog;
+package io.bothy.tog.examples.secondaryconstructor;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
-@Target({ElementType.CONSTRUCTOR, ElementType.TYPE})
-@Retention(RetentionPolicy.SOURCE)
-public @interface Builder {}
+public record Region(String name, String shortcode) {
+    //    @Builder
+    Region(String name) {
+        this(name, name.substring(0, 2));
+    }
+}

@@ -22,7 +22,6 @@ import static javax.lang.model.element.Modifier.STATIC;
 import com.google.auto.service.AutoService;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
-import com.google.common.base.Joiner;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
@@ -32,14 +31,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.RecordComponentElement;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 
 @SupportedAnnotationTypes("io.bothy.tog.Builder")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -53,13 +56,42 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 
         final var elements = processingEnv.getElementUtils();
+        final var messager = processingEnv.getMessager();
 
         for (final var annotation : annotations) {
             final var annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
             for (final var annotatedElement : annotatedElements) {
 
-                final var targetTypeMirror = annotatedElement.asType();
-                final var targetClassName = annotatedElement.getSimpleName();
+                final TypeMirror targetTypeMirror;
+                final Name targetClassName;
+                final List<BuilderField> builderFields;
+
+                messager.printNote("element", annotatedElement);
+                if (annotatedElement instanceof ExecutableElement executableElement) {
+                    if (!executableElement.getKind().equals(ElementKind.CONSTRUCTOR)) {
+                        messager.printError(
+                                "@io.bothy.tog.Builder is only applicable to records and record constructors.",
+                                executableElement);
+                        continue;
+                    }
+                    targetTypeMirror = executableElement.getEnclosingElement().asType();
+                    targetClassName = executableElement.getEnclosingElement().getSimpleName();
+                    builderFields = executableElement.getParameters().stream()
+                            .map(BuilderField::from)
+                            .toList();
+                } else if (annotatedElement instanceof TypeElement typeElement) {
+                    targetTypeMirror = typeElement.asType();
+                    targetClassName = typeElement.getSimpleName();
+                    builderFields = typeElement.getRecordComponents().stream()
+                            .map(BuilderField::from)
+                            .toList();
+
+                } else {
+                    messager.printError(
+                            "@io.bothy.tog.Builder is only applicable to records and record constructors.",
+                            annotatedElement);
+                    continue;
+                }
 
                 final var buildInterfaceClassName = ClassName.bestGuess("Build");
                 final var buildInterfaceSpec = TypeSpec.interfaceBuilder(buildInterfaceClassName)
@@ -70,48 +102,45 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                                 .build())
                         .build();
 
-                final var typeElement = (TypeElement) annotatedElement;
-                final List<? extends RecordComponentElement> recordComponents = typeElement.getRecordComponents();
-
                 final var targetPackage = elements.getPackageOf(annotatedElement);
                 final var targetPackageName = targetPackage.getQualifiedName().toString();
 
-                final var interfaces = new ArrayList<TypeSpec>();
-                final var fieldNames = new ArrayList<String>();
+                final var builderCallChain =
+                        builderFields.stream().map(BuilderField::fieldName).collect(Collectors.joining(" -> "));
+
+                final var constructorArgs =
+                        builderFields.stream().map(BuilderField::fieldName).collect(Collectors.joining(", "));
 
                 final var builderClassName = targetClassName + "Builder";
 
                 var returnType = ClassName.get(targetPackageName, builderClassName, "Build");
-
-                for (final var recordComponentElement : recordComponents.reversed()) {
-                    final var fieldName = recordComponentElement.getSimpleName();
-                    final var fieldType = recordComponentElement.asType();
-                    final var upperCamelCaseFieldName = LOWER_CAMEL_TO_UPPER_CAMEL.convert(fieldName.toString());
+                final var interfaces = new ArrayList<TypeSpec>();
+                for (final var field : builderFields.reversed()) {
+                    final var upperCamelCaseFieldName =
+                            LOWER_CAMEL_TO_UPPER_CAMEL.convert(field.fieldName().toString());
                     final var withInterfaceName =
                             ClassName.get(targetPackageName, builderClassName, "With" + upperCamelCaseFieldName);
                     final var withInterface = TypeSpec.interfaceBuilder(withInterfaceName)
                             .addModifiers(PUBLIC)
                             .addMethod(MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
                                     .addModifiers(PUBLIC, ABSTRACT)
-                                    .addParameter(TypeName.get(fieldType), fieldName.toString())
+                                    .addParameter(
+                                            TypeName.get(field.fieldType()),
+                                            field.fieldName().toString())
                                     .returns(returnType)
                                     .build())
                             .build();
                     returnType = withInterfaceName;
                     interfaces.add(withInterface);
-                    fieldNames.addFirst(fieldName.toString());
                 }
-
-                final var builderCallChain = Joiner.on(" -> ").join(fieldNames);
-                final var constructorArgs = Joiner.on(", ").join(fieldNames);
 
                 final var builderFactoryMethod = MethodSpec.methodBuilder("builder")
                         .addModifiers(PUBLIC, STATIC)
                         .returns(returnType)
                         .addCode(
                                 """
-                                return $1L -> () -> new $2L($3L);
-                                """,
+                                        return $1L -> () -> new $2L($3L);
+                                        """,
                                 builderCallChain,
                                 targetClassName,
                                 constructorArgs)
@@ -130,7 +159,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 try {
                     builderJavaFile.writeTo(processingEnv.getFiler());
                 } catch (final IOException e) {
-                    processingEnv.getMessager().printError("IO Error writing file: " + e.getMessage());
+                    messager.printError("IO Error writing file: " + e.getMessage());
                 }
             }
         }
