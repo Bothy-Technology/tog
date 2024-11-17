@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog.it.sb;
+package io.bothy.tog.examples.sb;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
