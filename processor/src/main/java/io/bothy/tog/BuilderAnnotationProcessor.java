@@ -66,20 +66,18 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final Name targetClassName;
                 final List<BuilderField> builderFields;
 
-                messager.printNote("element", annotatedElement);
-                if (annotatedElement instanceof ExecutableElement executableElement) {
-                    if (!executableElement.getKind().equals(ElementKind.CONSTRUCTOR)) {
-                        messager.printError(
-                                "@io.bothy.tog.Builder is only applicable to records and record constructors.",
-                                executableElement);
-                        continue;
-                    }
+                if (annotatedElement instanceof ExecutableElement executableElement
+                        && executableElement.getKind() == ElementKind.CONSTRUCTOR) {
+
                     targetTypeMirror = executableElement.getEnclosingElement().asType();
                     targetClassName = executableElement.getEnclosingElement().getSimpleName();
                     builderFields = executableElement.getParameters().stream()
                             .map(BuilderField::from)
                             .toList();
-                } else if (annotatedElement instanceof TypeElement typeElement) {
+
+                } else if (annotatedElement instanceof TypeElement typeElement
+                        && typeElement.getKind() == ElementKind.RECORD) {
+
                     targetTypeMirror = typeElement.asType();
                     targetClassName = typeElement.getSimpleName();
                     builderFields = typeElement.getRecordComponents().stream()
@@ -88,8 +86,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
 
                 } else {
                     messager.printError(
-                            "@io.bothy.tog.Builder is only applicable to records and record constructors.",
-                            annotatedElement);
+                            "@io.bothy.tog.Builder is only applicable to records and constructors.", annotatedElement);
                     continue;
                 }
 

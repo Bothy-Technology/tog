@@ -39,11 +39,44 @@ class BuilderAnnotationProcessorTest {
     }
 
     @Test
-    void canCreateARecordBuilderFromASecondaryConstructor() {
+    void canCreateARecordBuilderFromASecondaryRecordConstructor() {
         assertInputProducesExpectedOutput(
                 "record/secondaryConstructor/inputs/Menu.java",
                 "record/secondaryConstructor/expected/MenuBuilder.java",
                 "test.example.MenuBuilder");
+    }
+
+    @Test
+    void canCreateARecordBuilderFromAClassConstructor() {
+        assertInputProducesExpectedOutput(
+                "class/constructor/inputs/Menu.java",
+                "class/constructor/expected/MenuBuilder.java",
+                "test.example.MenuBuilder");
+    }
+
+    @Test
+    void compilationFailsForAnnotatedClass() {
+        final var source = JavaFileObjects.forSourceString(
+                "foo.bar.Invalid",
+                """
+                package foo.bar;
+
+                import io.bothy.tog.Builder;
+
+                @Builder
+                class Invalid {
+
+                  Invalid(String bob) {}
+                }
+                """);
+
+        final var compilation =
+                javac().withProcessors(new BuilderAnnotationProcessor()).compile(source);
+
+        assertThat(compilation).failed();
+
+        assertThat(compilation)
+                .hadErrorContaining("@io.bothy.tog.Builder is only applicable to records and constructors.");
     }
 
     private static void assertInputProducesExpectedOutput(
