@@ -109,6 +109,12 @@
                             If 'annotationProcessorPaths' is set, processors will no longer be
                             discovered on the regular -classpath; see also 'Using Error Prone
                             together with other annotation processors' below. -->
+                            <path>
+                                <groupId>com.google.auto.service</groupId>
+                                <artifactId>auto-service</artifactId>
+                                <version>${auto-service.version}</version>
+                            </path>
+
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
