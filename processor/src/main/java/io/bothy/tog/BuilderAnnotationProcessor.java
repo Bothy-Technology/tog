@@ -22,6 +22,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 import com.google.auto.service.AutoService;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
+import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.JavaFile;
 import com.palantir.javapoet.MethodSpec;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Generated;
 import javax.annotation.processing.Processor;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -57,6 +59,9 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
 
         final var elements = processingEnv.getElementUtils();
         final var messager = processingEnv.getMessager();
+        final var generatedAnnotation = AnnotationSpec.builder(Generated.class)
+                .addMember("value", "$S", BuilderAnnotationProcessor.class.getName())
+                .build();
 
         for (final var annotation : annotations) {
             final var annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
@@ -145,6 +150,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
 
                 final var builderClassSpec = TypeSpec.classBuilder(builderClassName)
                         .addModifiers(PUBLIC, FINAL)
+                        .addAnnotation(generatedAnnotation)
                         .addMethod(builderFactoryMethod)
                         .addTypes(interfaces.reversed())
                         .addType(buildInterfaceSpec)

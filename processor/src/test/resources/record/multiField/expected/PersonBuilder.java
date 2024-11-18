@@ -2,7 +2,9 @@ package test.example;
 
 import java.lang.String;
 import java.util.List;
+import javax.annotation.processing.Generated;
 
+@Generated("io.bothy.tog.BuilderAnnotationProcessor")
 public final class PersonBuilder {
 
     public static WithName builder() {
