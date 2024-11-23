@@ -99,15 +99,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                     continue;
                 }
 
-                final var buildInterfaceClassName = ClassName.bestGuess("Build");
-                final var buildInterfaceSpec = TypeSpec.interfaceBuilder(buildInterfaceClassName)
-                        .addModifiers(PUBLIC, STATIC)
-                        .addMethod(MethodSpec.methodBuilder("build")
-                                .addModifiers(PUBLIC, ABSTRACT)
-                                .returns(TypeName.get(targetTypeMirror))
-                                .build())
-                        .build();
-
                 final var targetPackage = elements.getPackageOf(annotatedElement);
                 final var targetPackageName = targetPackage.getQualifiedName().toString();
 
@@ -117,16 +108,18 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var constructorArgs =
                         builderFields.stream().map(BuilderField::fieldName).collect(Collectors.joining(", "));
 
-                final var typeHierarchy = Stream.iterate(
-                                annotatedElement, Objects::nonNull, Element::getEnclosingElement)
-                        .filter(elt -> elt.getKind().isClass() || elt.getKind().isInterface())
-                        .toList();
-                final var builderClassName =
-                        typeHierarchy.reversed().stream()
-                                        .map(Element::getSimpleName)
-                                        .collect(Collectors.joining()) + "Builder";
+                final var builderClassName = getBuilderClassName(annotatedElement, targetPackageName);
 
-                var returnType = ClassName.get(targetPackageName, builderClassName, "Build");
+                final var buildInterfaceClassName = builderClassName.nestedClass("Build");
+                final var buildInterfaceSpec = TypeSpec.interfaceBuilder(buildInterfaceClassName)
+                        .addModifiers(PUBLIC, STATIC)
+                        .addMethod(MethodSpec.methodBuilder("build")
+                                .addModifiers(PUBLIC, ABSTRACT)
+                                .returns(TypeName.get(targetTypeMirror))
+                                .build())
+                        .build();
+
+                var returnType = buildInterfaceClassName;
 
                 final var interfaces = new ArrayList<TypeSpec>();
                 for (final var field :
@@ -134,8 +127,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
 
                     final var upperCamelCaseFieldName =
                             LOWER_CAMEL_TO_UPPER_CAMEL.convert(field.fieldName().toString());
-                    final var withInterfaceName =
-                            ClassName.get(targetPackageName, builderClassName, "With" + upperCamelCaseFieldName);
+                    final var withInterfaceName = builderClassName.nestedClass("With" + upperCamelCaseFieldName);
                     final var withInterface = TypeSpec.interfaceBuilder(withInterfaceName)
                             .addModifiers(PUBLIC, STATIC)
                             .addMethod(MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
@@ -163,7 +155,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
 
                 final var builderFactoryMethod = MethodSpec.methodBuilder("builder")
                         .addModifiers(PUBLIC, STATIC)
-                        .returns(ClassName.get(targetPackageName, builderClassName))
+                        .returns(builderClassName)
                         .addCode(
                                 """
                                         return $1L -> () -> new $2L($3L);
@@ -194,5 +186,16 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
         }
 
         return false;
+    }
+
+    private static ClassName getBuilderClassName(final Element annotatedElement, final String targetPackageName) {
+        final var typeHierarchy = Stream.iterate(annotatedElement, Objects::nonNull, Element::getEnclosingElement)
+                .filter(elt -> elt.getKind().isClass() || elt.getKind().isInterface())
+                .toList();
+
+        final var builderClassName =
+                typeHierarchy.reversed().stream().map(Element::getSimpleName).collect(Collectors.joining()) + "Builder";
+
+        return ClassName.get(targetPackageName, builderClassName);
     }
 }
