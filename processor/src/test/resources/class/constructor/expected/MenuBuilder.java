@@ -8,7 +8,7 @@ import javax.annotation.processing.Generated;
 public final class MenuBuilder {
 
     public static WithName builder() {
-        return name -> entries -> () -> new Menu(name, entries);
+        return name -> entries -> () -> new test.example.Menu(name, entries);
     }
 
     public interface WithName {

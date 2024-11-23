@@ -31,8 +31,10 @@ import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Generated;
 import javax.annotation.processing.Processor;
@@ -40,6 +42,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Name;
@@ -70,6 +73,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final TypeMirror targetTypeMirror;
                 final Name targetClassName;
                 final List<BuilderField> builderFields;
+                final Element constructorElement;
 
                 if (annotatedElement instanceof ExecutableElement executableElement
                         && executableElement.getKind() == ElementKind.CONSTRUCTOR) {
@@ -80,6 +84,8 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                             .map(BuilderField::from)
                             .toList();
 
+                    constructorElement = executableElement.getEnclosingElement();
+
                 } else if (annotatedElement instanceof TypeElement typeElement
                         && typeElement.getKind() == ElementKind.RECORD) {
 
@@ -89,12 +95,41 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                             .map(BuilderField::from)
                             .toList();
 
+                    constructorElement = typeElement;
+
                 } else {
                     messager.printError(
                             "@io.bothy.tog.Builder is only applicable to records and constructors.", annotatedElement);
                     continue;
                 }
 
+                //                if(annotatedElement instanceof ExecutableElement executableElement) {
+                //
+                //                } else
+
+                //
+                //                final var enclosingTypeDefinitions = new ArrayList<Element>();
+                //                if(!annotatedElement.getKind().isExecutable()) {
+                //                    enclosingTypeDefinitions.add(annotatedElement);
+                //                }
+                //                var currentElemenent = annotatedElement;
+                //                for (; ; ) {
+                //                    var enclosingElement = currentElemenent.getEnclosingElement();
+                //                    if (enclosingElement == null) {
+                //                        break;
+                //                    }
+                //                    final var kind = enclosingElement.getKind();
+                //                    if (!kind.isClass() && !kind.isInterface()) {
+                //                        break;
+                //                    }
+                //                    if(!currentElemenent.getModifiers().contains(STATIC) && !kind.isExecutable()) {
+                //                        messager.printError("@io.bothy.tog.Builder is only applicable to nested
+                // classes, not inner classes", currentElemenent);
+                //                    }
+                //                    enclosingTypeDefinitions.add(enclosingElement);
+                //                    currentElemenent = enclosingElement.getEnclosingElement();
+                //                }
+                //
                 final var buildInterfaceClassName = ClassName.bestGuess("Build");
                 final var buildInterfaceSpec = TypeSpec.interfaceBuilder(buildInterfaceClassName)
                         .addModifiers(PUBLIC)
@@ -113,7 +148,14 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var constructorArgs =
                         builderFields.stream().map(BuilderField::fieldName).collect(Collectors.joining(", "));
 
-                final var builderClassName = targetClassName + "Builder";
+                final var typeHierarchy = Stream.iterate(
+                                annotatedElement, Objects::nonNull, Element::getEnclosingElement)
+                        .filter(elt -> elt.getKind().isClass() || elt.getKind().isInterface())
+                        .toList();
+                final var builderClassName =
+                        typeHierarchy.reversed().stream()
+                                        .map(Element::getSimpleName)
+                                        .collect(Collectors.joining()) + "Builder";
 
                 var returnType = ClassName.get(targetPackageName, builderClassName, "Build");
                 final var interfaces = new ArrayList<TypeSpec>();
@@ -144,7 +186,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                                         return $1L -> () -> new $2L($3L);
                                         """,
                                 builderCallChain,
-                                targetClassName,
+                                constructorElement,
                                 constructorArgs)
                         .build();
 
