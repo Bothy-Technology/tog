@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
-          server-id: github
+          server-id: https://github.com
 
       - run: cat /home/runner/.m2/settings.xml
 
