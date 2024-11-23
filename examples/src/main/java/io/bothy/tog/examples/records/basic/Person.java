@@ -18,7 +18,7 @@ import io.bothy.tog.Builder;
 
 @Builder
 public record Person(String name, int age, boolean adult, String address) {
-    public static PersonBuilder.WithName builder() {
+    public static PersonBuilder builder() {
         return PersonBuilder.builder();
     }
 }

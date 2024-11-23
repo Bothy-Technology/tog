@@ -1,7 +1,7 @@
 package test.example;
 
 import io.bothy.tog.Builder;
-import test.example.OrganisationDepartmentPersonBuilder.WithName;
+import test.example.OrganisationDepartmentPersonBuilder;
 
 public class Organisation {
 
@@ -9,7 +9,7 @@ public class Organisation {
 
         @Builder
         public record Person(String name) {
-            public static WithName builder() {
+            public static OrganisationDepartmentPersonBuilder builder() {
                 return OrganisationDepartmentPersonBuilder.builder();
             }
         }

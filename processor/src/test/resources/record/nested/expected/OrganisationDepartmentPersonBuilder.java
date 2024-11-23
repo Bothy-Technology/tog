@@ -4,17 +4,15 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("io.bothy.tog.BuilderAnnotationProcessor")
-public final class OrganisationDepartmentPersonBuilder {
+public interface OrganisationDepartmentPersonBuilder {
 
-    public static WithName builder() {
+    static OrganisationDepartmentPersonBuilder builder() {
         return name -> () -> new test.example.Organisation.Department.Person(name);
     }
 
-    public interface WithName {
-        Build withName(String name);
-    }
+    Build withName(String name);
 
-    public interface Build {
+    interface Build {
         Organisation.Department.Person build();
     }
 }
