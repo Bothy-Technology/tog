@@ -47,11 +47,19 @@ class BuilderAnnotationProcessorTest {
     }
 
     @Test
-    void canCreateARecordBuilderFromAClassConstructor() {
+    void canCreateABuilderFromAClassConstructor() {
         assertInputProducesExpectedOutput(
                 "class/constructor/inputs/Menu.java",
                 "class/constructor/expected/MenuBuilder.java",
                 "test.example.MenuBuilder");
+    }
+
+    @Test
+    void canCreateARecordBuilderFromARecordNestedInAClass() {
+        assertInputProducesExpectedOutput(
+                "record/nested/inputs/Organisation.java",
+                "record/nested/expected/OrganisationDepartmentPersonBuilder.java",
+                "test.example.OrganisationDepartmentPersonBuilder");
     }
 
     @Test

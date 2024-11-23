@@ -8,7 +8,7 @@ import javax.annotation.processing.Generated;
 public final class PersonBuilder {
 
     public static WithName builder() {
-        return name -> age -> pets -> () -> new Person(name, age, pets);
+        return name -> age -> pets -> () -> new test.example.Person(name, age, pets);
     }
 
     public interface WithName {
