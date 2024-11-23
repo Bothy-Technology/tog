@@ -19,7 +19,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/Bothy-Technology/tog.git</connection>
-        <developerConnection>scm:git:git@github.com:Bothy-Technology/tog.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/Bothy-Technology/tog.git</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/Bothy-Technology/tog</url>
     </scm>
