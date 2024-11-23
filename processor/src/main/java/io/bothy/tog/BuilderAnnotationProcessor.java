@@ -29,7 +29,6 @@ import com.palantir.javapoet.TypeName;
 import com.palantir.javapoet.TypeSpec;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,7 +44,6 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 
 @SupportedAnnotationTypes("io.bothy.tog.Builder")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
@@ -69,30 +67,16 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
             final var annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
             for (final var annotatedElement : annotatedElements) {
 
-                final TypeMirror targetTypeMirror;
-                final List<BuilderField> builderFields;
-                final Element constructorElement;
+                final BuilderTarget builderTarget;
 
                 if (annotatedElement instanceof ExecutableElement executableElement
                         && executableElement.getKind() == ElementKind.CONSTRUCTOR) {
 
-                    targetTypeMirror = executableElement.getEnclosingElement().asType();
-                    builderFields = executableElement.getParameters().stream()
-                            .map(BuilderField::from)
-                            .toList();
-
-                    constructorElement = executableElement.getEnclosingElement();
-
+                    builderTarget = new ConstructorBuilderTarget(executableElement);
                 } else if (annotatedElement instanceof TypeElement typeElement
                         && typeElement.getKind() == ElementKind.RECORD) {
 
-                    targetTypeMirror = typeElement.asType();
-                    builderFields = typeElement.getRecordComponents().stream()
-                            .map(BuilderField::from)
-                            .toList();
-
-                    constructorElement = typeElement;
-
+                    builderTarget = new RecordBuilderTarget(typeElement);
                 } else {
                     messager.printError(
                             "@io.bothy.tog.Builder is only applicable to records and constructors.", annotatedElement);
@@ -102,11 +86,13 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var targetPackage = elements.getPackageOf(annotatedElement);
                 final var targetPackageName = targetPackage.getQualifiedName().toString();
 
-                final var builderCallChain =
-                        builderFields.stream().map(BuilderField::fieldName).collect(Collectors.joining(" -> "));
+                final var builderCallChain = builderTarget.fields().stream()
+                        .map(BuilderField::fieldName)
+                        .collect(Collectors.joining(" -> "));
 
-                final var constructorArgs =
-                        builderFields.stream().map(BuilderField::fieldName).collect(Collectors.joining(", "));
+                final var constructorArgs = builderTarget.fields().stream()
+                        .map(BuilderField::fieldName)
+                        .collect(Collectors.joining(", "));
 
                 final var builderClassName = getBuilderClassName(annotatedElement, targetPackageName);
 
@@ -115,13 +101,15 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                         .addModifiers(PUBLIC, STATIC)
                         .addMethod(MethodSpec.methodBuilder("build")
                                 .addModifiers(PUBLIC, ABSTRACT)
-                                .returns(TypeName.get(targetTypeMirror))
+                                .returns(
+                                        TypeName.get(builderTarget.targetClass().asType()))
                                 .build())
                         .build();
 
                 var returnType = buildInterfaceClassName;
 
                 final var interfaces = new ArrayList<TypeSpec>();
+                final var builderFields = builderTarget.fields();
                 for (final var field :
                         builderFields.subList(1, builderFields.size()).reversed()) {
 
@@ -161,7 +149,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                                         return $1L -> () -> new $2L($3L);
                                         """,
                                 builderCallChain,
-                                constructorElement,
+                                builderTarget.targetClass(),
                                 constructorArgs)
                         .build();
 
