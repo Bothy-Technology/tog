@@ -17,7 +17,7 @@ package io.bothy.tog;
 import java.util.List;
 import javax.lang.model.element.Element;
 
-public interface BuilderTarget {
+interface BuilderTarget {
     Element targetClass();
 
     List<BuilderField> fields();

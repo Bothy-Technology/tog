@@ -48,7 +48,7 @@ import javax.lang.model.element.TypeElement;
 @SupportedAnnotationTypes("io.bothy.tog.Builder")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
-public class BuilderAnnotationProcessor extends AbstractProcessor {
+public final class BuilderAnnotationProcessor extends AbstractProcessor {
 
     private static final Converter<String, String> LOWER_CAMEL_TO_UPPER_CAMEL =
             CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_CAMEL);
@@ -86,15 +86,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                 final var targetPackage = elements.getPackageOf(annotatedElement);
                 final var targetPackageName = targetPackage.getQualifiedName().toString();
 
-                final var builderCallChain = builderTarget.fields().stream()
-                        .map(BuilderField::fieldName)
-                        .collect(Collectors.joining(" -> "));
-
-                final var constructorArgs = builderTarget.fields().stream()
-                        .map(BuilderField::fieldName)
-                        .collect(Collectors.joining(", "));
-
-                final var builderClassName = getBuilderClassName(annotatedElement, targetPackageName);
+                final var builderClassName = builderInterfaceName(annotatedElement, targetPackageName);
 
                 final var buildInterfaceClassName = builderClassName.nestedClass("Build");
                 final var buildInterfaceSpec = TypeSpec.interfaceBuilder(buildInterfaceClassName)
@@ -106,58 +98,31 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                                 .build())
                         .build();
 
-                var returnType = buildInterfaceClassName;
-
-                final var interfaces = new ArrayList<TypeSpec>();
                 final var builderFields = builderTarget.fields();
+
+                var nextStageTypeName = buildInterfaceClassName;
+                final var interfaces = new ArrayList<TypeSpec>();
                 for (final var field :
                         builderFields.subList(1, builderFields.size()).reversed()) {
 
-                    final var upperCamelCaseFieldName =
-                            LOWER_CAMEL_TO_UPPER_CAMEL.convert(field.fieldName().toString());
-                    final var withInterfaceName = builderClassName.nestedClass("With" + upperCamelCaseFieldName);
+                    final var withInterfaceName = withStageInterfaceName(field, builderClassName);
+
                     final var withInterface = TypeSpec.interfaceBuilder(withInterfaceName)
                             .addModifiers(PUBLIC, STATIC)
-                            .addMethod(MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
-                                    .addModifiers(PUBLIC, ABSTRACT)
-                                    .addParameter(
-                                            TypeName.get(field.fieldType()),
-                                            field.fieldName().toString())
-                                    .returns(returnType)
-                                    .build())
+                            .addMethod(withStageMethod(field, nextStageTypeName))
                             .build();
-                    returnType = withInterfaceName;
+                    nextStageTypeName = withInterfaceName;
                     interfaces.add(withInterface);
                 }
+                final var firstStageMethod = withStageMethod(builderFields.getFirst(), nextStageTypeName);
 
-                final var first = builderFields.getFirst();
-                final var upperCamelCaseFieldName =
-                        LOWER_CAMEL_TO_UPPER_CAMEL.convert(first.fieldName().toString());
-                final var firstMethod = MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
-                        .addModifiers(PUBLIC, ABSTRACT)
-                        .addParameter(
-                                TypeName.get(first.fieldType()),
-                                first.fieldName().toString())
-                        .returns(returnType)
-                        .build();
-
-                final var builderFactoryMethod = MethodSpec.methodBuilder("builder")
-                        .addModifiers(PUBLIC, STATIC)
-                        .returns(builderClassName)
-                        .addCode(
-                                """
-                                        return $1L -> () -> new $2L($3L);
-                                        """,
-                                builderCallChain,
-                                builderTarget.targetClass(),
-                                constructorArgs)
-                        .build();
+                final var builderFactoryMethod = builderFactoryMethod(builderTarget, builderClassName);
 
                 final var builderClassSpec = TypeSpec.interfaceBuilder(builderClassName)
                         .addModifiers(PUBLIC)
                         .addAnnotation(GENERATED_ANNOTATION)
                         .addMethod(builderFactoryMethod)
-                        .addMethod(firstMethod)
+                        .addMethod(firstStageMethod)
                         .addTypes(interfaces.reversed())
                         .addType(buildInterfaceSpec)
                         .build();
@@ -176,14 +141,50 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
         return false;
     }
 
-    private static ClassName getBuilderClassName(final Element annotatedElement, final String targetPackageName) {
+    private static ClassName withStageInterfaceName(final BuilderField field, final ClassName builderClassName) {
+        final var upperCamelCaseFieldName =
+                LOWER_CAMEL_TO_UPPER_CAMEL.convert(field.fieldName().toString());
+        return builderClassName.nestedClass("With" + upperCamelCaseFieldName);
+    }
+
+    private static MethodSpec builderFactoryMethod(
+            final BuilderTarget builderTarget, final ClassName builderClassName) {
+        final var builderCallChain =
+                builderTarget.fields().stream().map(BuilderField::fieldName).collect(Collectors.joining(" -> "));
+        final var constructorArgs =
+                builderTarget.fields().stream().map(BuilderField::fieldName).collect(Collectors.joining(", "));
+        return MethodSpec.methodBuilder("builder")
+                .addModifiers(PUBLIC, STATIC)
+                .returns(builderClassName)
+                .addCode(
+                        """
+                                return $1L -> () -> new $2L($3L);
+                                """,
+                        builderCallChain,
+                        builderTarget.targetClass(),
+                        constructorArgs)
+                .build();
+    }
+
+    private static ClassName builderInterfaceName(final Element annotatedElement, final String targetPackageName) {
         final var typeHierarchy = Stream.iterate(annotatedElement, Objects::nonNull, Element::getEnclosingElement)
                 .filter(elt -> elt.getKind().isClass() || elt.getKind().isInterface())
                 .toList();
 
-        final var builderClassName =
+        final var builderInterfaceName =
                 typeHierarchy.reversed().stream().map(Element::getSimpleName).collect(Collectors.joining()) + "Builder";
 
-        return ClassName.get(targetPackageName, builderClassName);
+        return ClassName.get(targetPackageName, builderInterfaceName);
+    }
+
+    private static MethodSpec withStageMethod(final BuilderField current, final TypeName nextStageType) {
+        final var fieldName = current.fieldName().toString();
+        final var methodName = "with%s".formatted(LOWER_CAMEL_TO_UPPER_CAMEL.convert(fieldName));
+        final var parameterTypeName = TypeName.get(current.fieldType());
+        return MethodSpec.methodBuilder(methodName)
+                .addModifiers(PUBLIC, ABSTRACT)
+                .addParameter(parameterTypeName, fieldName)
+                .returns(nextStageType)
+                .build();
     }
 }
