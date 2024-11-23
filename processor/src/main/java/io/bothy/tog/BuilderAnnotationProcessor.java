@@ -45,7 +45,6 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.Name;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
 
@@ -71,7 +70,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
             for (final var annotatedElement : annotatedElements) {
 
                 final TypeMirror targetTypeMirror;
-                final Name targetClassName;
                 final List<BuilderField> builderFields;
                 final Element constructorElement;
 
@@ -79,7 +77,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                         && executableElement.getKind() == ElementKind.CONSTRUCTOR) {
 
                     targetTypeMirror = executableElement.getEnclosingElement().asType();
-                    targetClassName = executableElement.getEnclosingElement().getSimpleName();
                     builderFields = executableElement.getParameters().stream()
                             .map(BuilderField::from)
                             .toList();
@@ -90,7 +87,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                         && typeElement.getKind() == ElementKind.RECORD) {
 
                     targetTypeMirror = typeElement.asType();
-                    targetClassName = typeElement.getSimpleName();
                     builderFields = typeElement.getRecordComponents().stream()
                             .map(BuilderField::from)
                             .toList();
@@ -103,33 +99,6 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                     continue;
                 }
 
-                //                if(annotatedElement instanceof ExecutableElement executableElement) {
-                //
-                //                } else
-
-                //
-                //                final var enclosingTypeDefinitions = new ArrayList<Element>();
-                //                if(!annotatedElement.getKind().isExecutable()) {
-                //                    enclosingTypeDefinitions.add(annotatedElement);
-                //                }
-                //                var currentElemenent = annotatedElement;
-                //                for (; ; ) {
-                //                    var enclosingElement = currentElemenent.getEnclosingElement();
-                //                    if (enclosingElement == null) {
-                //                        break;
-                //                    }
-                //                    final var kind = enclosingElement.getKind();
-                //                    if (!kind.isClass() && !kind.isInterface()) {
-                //                        break;
-                //                    }
-                //                    if(!currentElemenent.getModifiers().contains(STATIC) && !kind.isExecutable()) {
-                //                        messager.printError("@io.bothy.tog.Builder is only applicable to nested
-                // classes, not inner classes", currentElemenent);
-                //                    }
-                //                    enclosingTypeDefinitions.add(enclosingElement);
-                //                    currentElemenent = enclosingElement.getEnclosingElement();
-                //                }
-                //
                 final var buildInterfaceClassName = ClassName.bestGuess("Build");
                 final var buildInterfaceSpec = TypeSpec.interfaceBuilder(buildInterfaceClassName)
                         .addModifiers(PUBLIC)
