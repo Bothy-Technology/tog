@@ -347,8 +347,10 @@
                         <artifactId>central-publishing-maven-plugin</artifactId>
                         <extensions>true</extensions>
                         <configuration>
+                            <autoPublish>true</autoPublish>
                             <checksums>all</checksums>
                             <publishingServerId>central</publishingServerId>
+                            <waitUntil>published</waitUntil>
                         </configuration>
                     </plugin>
                 </plugins>
