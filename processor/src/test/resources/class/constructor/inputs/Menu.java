@@ -1,7 +1,7 @@
 package test.example;
 
 import io.bothy.tog.Builder;
-import test.example.MenuBuilder.WithName;
+import test.example.MenuBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ public class Menu {
         this.entries = entries;
     }
 
-    public static WithName builder() {
+    public static MenuBuilder builder() {
         return MenuBuilder.builder();
     }
 }

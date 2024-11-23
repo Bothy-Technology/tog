@@ -21,7 +21,7 @@ public class Circle {
     private double radius;
     private Point center;
 
-    public static CircleBuilder.WithRadius builder() {
+    public static CircleBuilder builder() {
         return CircleBuilder.builder();
     }
 

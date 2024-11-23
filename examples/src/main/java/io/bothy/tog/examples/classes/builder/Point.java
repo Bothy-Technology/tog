@@ -21,7 +21,7 @@ public class Point {
     private double x;
     private double y;
 
-    public static PointBuilder.WithX builder() {
+    public static PointBuilder builder() {
         return PointBuilder.builder();
     }
 

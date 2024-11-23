@@ -5,21 +5,19 @@ import java.util.List;
 import javax.annotation.processing.Generated;
 
 @Generated("io.bothy.tog.BuilderAnnotationProcessor")
-public final class MenuBuilder {
+public interface MenuBuilder {
 
-    public static WithName builder() {
+    static MenuBuilder builder() {
         return name -> entries -> () -> new test.example.Menu(name, entries);
     }
 
-    public interface WithName {
-        WithEntries withName(String name);
-    }
+    WithEntries withName(String name);
 
-    public interface WithEntries {
+    interface WithEntries {
         Build withEntries(List<String> entries);
     }
 
-    public interface Build {
+    interface Build {
         Menu build();
     }
 }

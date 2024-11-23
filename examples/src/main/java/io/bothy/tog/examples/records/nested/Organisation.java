@@ -19,7 +19,7 @@ import io.bothy.tog.Builder;
 public class Organisation {
     @Builder
     public record Person(String name, int age, String address) {
-        public static OrganisationPersonBuilder.WithName builder() {
+        public static OrganisationPersonBuilder builder() {
             return OrganisationPersonBuilder.builder();
         }
     }

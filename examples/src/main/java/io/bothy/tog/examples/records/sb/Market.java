@@ -19,7 +19,7 @@ import java.util.List;
 
 @Builder
 public record Market(String name, List<Selection> selections) {
-    public static MarketBuilder.WithName builder() {
+    public static MarketBuilder builder() {
         return MarketBuilder.builder();
     }
 }

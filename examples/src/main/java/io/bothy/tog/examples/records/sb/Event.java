@@ -19,7 +19,7 @@ import java.util.List;
 
 @Builder
 public record Event(String name, List<Market> markets) {
-    public static EventBuilder.WithName builder() {
+    public static EventBuilder builder() {
         return EventBuilder.builder();
     }
 }

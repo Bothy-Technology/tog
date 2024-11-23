@@ -18,7 +18,7 @@ import io.bothy.tog.Builder;
 
 @Builder
 public record Selection(String name) {
-    public static SelectionBuilder.WithName builder() {
+    public static SelectionBuilder builder() {
         return SelectionBuilder.builder();
     }
 }

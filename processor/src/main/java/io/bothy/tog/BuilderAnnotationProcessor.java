@@ -15,7 +15,6 @@
 package io.bothy.tog;
 
 import static javax.lang.model.element.Modifier.ABSTRACT;
-import static javax.lang.model.element.Modifier.FINAL;
 import static javax.lang.model.element.Modifier.PUBLIC;
 import static javax.lang.model.element.Modifier.STATIC;
 
@@ -53,17 +52,18 @@ import javax.lang.model.type.TypeMirror;
 @AutoService(Processor.class)
 public class BuilderAnnotationProcessor extends AbstractProcessor {
 
-    public static final Converter<String, String> LOWER_CAMEL_TO_UPPER_CAMEL =
+    private static final Converter<String, String> LOWER_CAMEL_TO_UPPER_CAMEL =
             CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_CAMEL);
+
+    private static final AnnotationSpec GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
+            .addMember("value", "$S", BuilderAnnotationProcessor.class.getName())
+            .build();
 
     @Override
     public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
 
         final var elements = processingEnv.getElementUtils();
         final var messager = processingEnv.getMessager();
-        final var generatedAnnotation = AnnotationSpec.builder(Generated.class)
-                .addMember("value", "$S", BuilderAnnotationProcessor.class.getName())
-                .build();
 
         for (final var annotation : annotations) {
             final var annotatedElements = roundEnv.getElementsAnnotatedWith(annotation);
@@ -101,7 +101,7 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
 
                 final var buildInterfaceClassName = ClassName.bestGuess("Build");
                 final var buildInterfaceSpec = TypeSpec.interfaceBuilder(buildInterfaceClassName)
-                        .addModifiers(PUBLIC)
+                        .addModifiers(PUBLIC, STATIC)
                         .addMethod(MethodSpec.methodBuilder("build")
                                 .addModifiers(PUBLIC, ABSTRACT)
                                 .returns(TypeName.get(targetTypeMirror))
@@ -127,14 +127,17 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                                         .collect(Collectors.joining()) + "Builder";
 
                 var returnType = ClassName.get(targetPackageName, builderClassName, "Build");
+
                 final var interfaces = new ArrayList<TypeSpec>();
-                for (final var field : builderFields.reversed()) {
+                for (final var field :
+                        builderFields.subList(1, builderFields.size()).reversed()) {
+
                     final var upperCamelCaseFieldName =
                             LOWER_CAMEL_TO_UPPER_CAMEL.convert(field.fieldName().toString());
                     final var withInterfaceName =
                             ClassName.get(targetPackageName, builderClassName, "With" + upperCamelCaseFieldName);
                     final var withInterface = TypeSpec.interfaceBuilder(withInterfaceName)
-                            .addModifiers(PUBLIC)
+                            .addModifiers(PUBLIC, STATIC)
                             .addMethod(MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
                                     .addModifiers(PUBLIC, ABSTRACT)
                                     .addParameter(
@@ -147,9 +150,20 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                     interfaces.add(withInterface);
                 }
 
+                final var first = builderFields.getFirst();
+                final var upperCamelCaseFieldName =
+                        LOWER_CAMEL_TO_UPPER_CAMEL.convert(first.fieldName().toString());
+                final var firstMethod = MethodSpec.methodBuilder("with" + upperCamelCaseFieldName)
+                        .addModifiers(PUBLIC, ABSTRACT)
+                        .addParameter(
+                                TypeName.get(first.fieldType()),
+                                first.fieldName().toString())
+                        .returns(returnType)
+                        .build();
+
                 final var builderFactoryMethod = MethodSpec.methodBuilder("builder")
                         .addModifiers(PUBLIC, STATIC)
-                        .returns(returnType)
+                        .returns(ClassName.get(targetPackageName, builderClassName))
                         .addCode(
                                 """
                                         return $1L -> () -> new $2L($3L);
@@ -159,10 +173,11 @@ public class BuilderAnnotationProcessor extends AbstractProcessor {
                                 constructorArgs)
                         .build();
 
-                final var builderClassSpec = TypeSpec.classBuilder(builderClassName)
-                        .addModifiers(PUBLIC, FINAL)
-                        .addAnnotation(generatedAnnotation)
+                final var builderClassSpec = TypeSpec.interfaceBuilder(builderClassName)
+                        .addModifiers(PUBLIC)
+                        .addAnnotation(GENERATED_ANNOTATION)
                         .addMethod(builderFactoryMethod)
+                        .addMethod(firstMethod)
                         .addTypes(interfaces.reversed())
                         .addType(buildInterfaceSpec)
                         .build();
