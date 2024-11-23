@@ -21,7 +21,8 @@ jobs:
       - uses: DeterminateSystems/flake-checker-action@main
 
       - run: |
-          git config --global user.name 'Github Action'
-          git config --global user.email 'gha@users.noreply.github.com'
+          git config --global user.name "${{ env.CI_COMMIT_AUTHOR }}"
+          git config --global user.email "username@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.PAT }}@github.com/${{ github.repository }}
           nix develop -c mvn --batch-mode release:prepare
           nix develop -c mvn --batch-mode release:perform
