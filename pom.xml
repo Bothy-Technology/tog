@@ -16,6 +16,30 @@
         <module>examples</module>
     </modules>
 
+    <url>https://github.com/Bothy-Technology/tog</url>
+    <description>Simple, useful utilities.</description>
+
+    <scm>
+        <connection>scm:git:https://github.com/Bothy-Technology/tog.git</connection>
+        <developerConnection>scm:git:git@github.com:Bothy-Technology/tog.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://github.com/Bothy-Technology/tog</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Neil Green</name>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>GPL-3.0-or-later</name>
+            <url>./COPYING</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <properties>
 
         <maven.compiler.source>21</maven.compiler.source>
@@ -25,6 +49,8 @@
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.7.0</maven-dependency-plugin.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
+        <maven-jarsigner-plugin.version>3.1.0</maven-jarsigner-plugin.version>
         <maven-javadoc-plugin.version>3.11.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -85,7 +111,7 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>jar</goal>
+                            <goal>jar-no-fork</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -115,15 +141,6 @@
                     </java>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>org.sonatype.central</groupId>
-                <artifactId>central-publishing-maven-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <publishingServerId>central</publishingServerId>
-                    <excludeArtifacts>examples</excludeArtifacts>
-                </configuration>
-            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -149,7 +166,6 @@
                                 <artifactId>auto-service</artifactId>
                                 <version>${auto-service.version}</version>
                             </path>
-
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
@@ -169,6 +185,11 @@
                             </requireMavenVersion>
                         </rules>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>${maven-gpg-plugin.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -273,5 +294,36 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>publish</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <checksums>all</checksums>
+                            <publishingServerId>central</publishingServerId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
