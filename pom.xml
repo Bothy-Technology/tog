@@ -342,17 +342,17 @@
                             </execution>
                         </executions>
                     </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.central</groupId>
-                        <artifactId>central-publishing-maven-plugin</artifactId>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <autoPublish>true</autoPublish>
-                            <checksums>all</checksums>
-                            <publishingServerId>central</publishingServerId>
-                            <waitUntil>published</waitUntil>
-                        </configuration>
-                    </plugin>
+<!--                    <plugin>-->
+<!--                        <groupId>org.sonatype.central</groupId>-->
+<!--                        <artifactId>central-publishing-maven-plugin</artifactId>-->
+<!--                        <extensions>true</extensions>-->
+<!--                        <configuration>-->
+<!--                            <autoPublish>true</autoPublish>-->
+<!--                            <checksums>all</checksums>-->
+<!--                            <publishingServerId>central</publishingServerId>-->
+<!--                            <waitUntil>published</waitUntil>-->
+<!--                        </configuration>-->
+<!--                    </plugin>-->
                 </plugins>
             </build>
         </profile>
