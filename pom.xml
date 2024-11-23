@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.bothy.tog</groupId>
     <artifactId>tog</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.12-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -21,7 +19,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/Bothy-Technology/tog.git</connection>
-        <developerConnection>scm:git:git@github.com:Bothy-Technology/tog.git</developerConnection>
+        <developerConnection>scm:git:https://github.com/Bothy-Technology/tog.git</developerConnection>
         <tag>HEAD</tag>
         <url>https://github.com/Bothy-Technology/tog</url>
     </scm>
@@ -45,6 +43,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.scm.id>github</project.scm.id>
 
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
@@ -139,8 +138,8 @@
                             <version>${palantir-java-format.version}</version>
                         </palantirJavaFormat>
 
-                        <importOrder/>
-                        <removeUnusedImports/>
+                        <importOrder />
+                        <removeUnusedImports />
                     </java>
                 </configuration>
             </plugin>
@@ -210,6 +209,7 @@
                     <version>${maven-release-plugin.version}</version>
                     <configuration>
                         <preparationGoals>clean verify</preparationGoals>
+                        <releaseProfiles>publish</releaseProfiles>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -336,10 +336,12 @@
                         <artifactId>maven-gpg-plugin</artifactId>
                         <executions>
                             <execution>
-                                <phase>verify</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
+                                <configuration>
+                                    <signer>bc</signer>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -348,8 +350,10 @@
                         <artifactId>central-publishing-maven-plugin</artifactId>
                         <extensions>true</extensions>
                         <configuration>
+                            <autoPublish>true</autoPublish>
                             <checksums>all</checksums>
                             <publishingServerId>central</publishingServerId>
+                            <waitUntil>published</waitUntil>
                         </configuration>
                     </plugin>
                 </plugins>
