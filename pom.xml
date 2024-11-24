@@ -5,7 +5,7 @@
 
     <groupId>io.bothy.tog</groupId>
     <artifactId>tog</artifactId>
-    <version>0.1.12-SNAPSHOT</version>
+    <version>0.1.11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
