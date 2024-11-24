@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog;
+package io.bothy.tog.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

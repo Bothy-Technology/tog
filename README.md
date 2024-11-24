@@ -14,7 +14,7 @@ tog - /tʰok/
 ### Use it
 Annotate a class with `@Builder`.
 ```java
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 
 @Builder
 public record Person(String name, int age) {

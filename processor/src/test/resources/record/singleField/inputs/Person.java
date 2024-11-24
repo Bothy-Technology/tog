@@ -1,6 +1,6 @@
 package test.example;
 
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 import test.example.PersonBuilder;
 
 @Builder
