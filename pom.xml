@@ -331,29 +331,29 @@
             <id>publish</id>
             <build>
                 <plugins>
-<!--                    <plugin>-->
-<!--                        <groupId>org.apache.maven.plugins</groupId>-->
-<!--                        <artifactId>maven-gpg-plugin</artifactId>-->
-<!--                        <executions>-->
-<!--                            <execution>-->
-<!--                                <phase>verify</phase>-->
-<!--                                <goals>-->
-<!--                                    <goal>sign</goal>-->
-<!--                                </goals>-->
-<!--                            </execution>-->
-<!--                        </executions>-->
-<!--                    </plugin>-->
-<!--                    <plugin>-->
-<!--                        <groupId>org.sonatype.central</groupId>-->
-<!--                        <artifactId>central-publishing-maven-plugin</artifactId>-->
-<!--                        <extensions>true</extensions>-->
-<!--                        <configuration>-->
-<!--                            <autoPublish>true</autoPublish>-->
-<!--                            <checksums>all</checksums>-->
-<!--                            <publishingServerId>central</publishingServerId>-->
-<!--                            <waitUntil>published</waitUntil>-->
-<!--                        </configuration>-->
-<!--                    </plugin>-->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <autoPublish>true</autoPublish>
+                            <checksums>all</checksums>
+                            <publishingServerId>central</publishingServerId>
+                            <waitUntil>published</waitUntil>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
