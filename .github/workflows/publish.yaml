@@ -19,20 +19,14 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
           cache: 'maven'
-          server-id: 'github'
-
-      - run: cat /home/runner/.m2/settings.xml
-      - run: git remote -v
 
       - run: |
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
       - name: Publish JAR
-        run: nix develop -c mvn --batch-mode release:prepare release:perform
+        run: nix develop -c mvn --settings ./.github/publish-settings.xml --batch-mode release:prepare release:perform
         env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.RELEASES_GPG_PASSPHRASE }}
           MAVEN_GPG_KEY: ${{ secrets.PUBLISH_GPG_PRIVATE_SIGNING_KEY }}
-
-#        env:
-#          GITHUB_ACTOR: ${{ github.actor }}
-#          GITHUB_TOKEN: ${{ github.token }}
