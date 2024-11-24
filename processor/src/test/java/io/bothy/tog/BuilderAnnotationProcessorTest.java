@@ -69,7 +69,7 @@ class BuilderAnnotationProcessorTest {
                 """
                 package foo.bar;
 
-                import io.bothy.tog.Builder;
+                import io.bothy.tog.annotations.Builder;
 
                 @Builder
                 class Invalid {
@@ -84,7 +84,8 @@ class BuilderAnnotationProcessorTest {
         assertThat(compilation).failed();
 
         assertThat(compilation)
-                .hadErrorContaining("@io.bothy.tog.Builder is only applicable to records and constructors.");
+                .hadErrorContaining(
+                        "@io.bothy.tog.annotations.Builder is only applicable to records and constructors.");
     }
 
     private static void assertInputProducesExpectedOutput(

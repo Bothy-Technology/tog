@@ -14,7 +14,7 @@
  */
 package io.bothy.tog.examples.records.secondaryconstructor;
 
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 
 public record Region(String name, String shortcode) {
     @Builder

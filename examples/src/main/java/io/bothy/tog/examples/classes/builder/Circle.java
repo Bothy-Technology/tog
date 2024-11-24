@@ -14,7 +14,7 @@
  */
 package io.bothy.tog.examples.classes.builder;
 
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 
 public class Circle {
 

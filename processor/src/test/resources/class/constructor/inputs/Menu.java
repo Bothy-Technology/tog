@@ -1,9 +1,8 @@
 package test.example;
 
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 import test.example.MenuBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Menu {

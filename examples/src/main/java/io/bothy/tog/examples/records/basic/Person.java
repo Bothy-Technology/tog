@@ -14,7 +14,7 @@
  */
 package io.bothy.tog.examples.records.basic;
 
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 
 @Builder
 public record Person(String name, int age, boolean adult, String address) {

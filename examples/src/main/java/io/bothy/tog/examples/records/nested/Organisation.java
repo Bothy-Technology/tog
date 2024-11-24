@@ -14,7 +14,7 @@
  */
 package io.bothy.tog.examples.records.nested;
 
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 
 public class Organisation {
     @Builder

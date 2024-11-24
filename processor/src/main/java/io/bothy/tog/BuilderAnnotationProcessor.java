@@ -45,7 +45,7 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 
-@SupportedAnnotationTypes("io.bothy.tog.Builder")
+@SupportedAnnotationTypes("io.bothy.tog.annotations.Builder")
 @SupportedSourceVersion(SourceVersion.RELEASE_21)
 @AutoService(Processor.class)
 public final class BuilderAnnotationProcessor extends AbstractProcessor {
@@ -79,7 +79,8 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
                     builderTarget = new RecordBuilderTarget(typeElement);
                 } else {
                     messager.printError(
-                            "@io.bothy.tog.Builder is only applicable to records and constructors.", annotatedElement);
+                            "@io.bothy.tog.annotations.Builder is only applicable to records and constructors.",
+                            annotatedElement);
                     continue;
                 }
 

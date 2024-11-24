@@ -14,7 +14,7 @@
  */
 package io.bothy.tog.examples.records.sb;
 
-import io.bothy.tog.Builder;
+import io.bothy.tog.annotations.Builder;
 import java.util.List;
 
 @Builder
