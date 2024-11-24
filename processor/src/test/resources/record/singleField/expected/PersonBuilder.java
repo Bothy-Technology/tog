@@ -3,7 +3,7 @@ package test.example;
 import java.lang.String;
 import javax.annotation.processing.Generated;
 
-@Generated("io.bothy.tog.BuilderAnnotationProcessor")
+@Generated("io.bothy.tog.processor.BuilderAnnotationProcessor")
 public interface PersonBuilder {
 
     static PersonBuilder builder() {

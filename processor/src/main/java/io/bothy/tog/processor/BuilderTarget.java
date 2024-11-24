@@ -12,19 +12,13 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog;
+package io.bothy.tog.processor;
 
-import javax.lang.model.element.Name;
-import javax.lang.model.element.RecordComponentElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeMirror;
+import java.util.List;
+import javax.lang.model.element.Element;
 
-record BuilderField(Name fieldName, TypeMirror fieldType) {
-    static BuilderField from(final RecordComponentElement recordComponent) {
-        return new BuilderField(recordComponent.getSimpleName(), recordComponent.asType());
-    }
+interface BuilderTarget {
+    Element targetClass();
 
-    public static BuilderField from(final VariableElement variable) {
-        return new BuilderField(variable.getSimpleName(), variable.asType());
-    }
+    List<BuilderField> fields();
 }
