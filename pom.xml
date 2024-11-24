@@ -5,7 +5,7 @@
 
     <groupId>io.bothy.tog</groupId>
     <artifactId>tog</artifactId>
-    <version>0.1.11-SNAPSHOT</version>
+    <version>0.1.11</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -20,7 +20,7 @@
     <scm>
         <connection>scm:git:https://github.com/Bothy-Technology/tog.git</connection>
         <developerConnection>scm:git:https://github.com/Bothy-Technology/tog.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>tog-0.1.11</tag>
         <url>https://github.com/Bothy-Technology/tog</url>
     </scm>
 
