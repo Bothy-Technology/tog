@@ -14,15 +14,17 @@
  */
 package io.bothy.tog.examples.records.secondaryconstructor;
 
-import io.bothy.tog.Builder;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public record Region(String name, String shortcode) {
-    @Builder
-    Region(String name) {
-        this(name, name.substring(0, 2));
-    }
+import org.junit.jupiter.api.Test;
 
-    public static RegionBuilder builder() {
-        return RegionBuilder.builder();
+class RegionTest {
+
+    @Test
+    void canBuildRegion() {
+        final var france = Region.builder().withName("France").build();
+
+        assertThat(france).extracting("name").isEqualTo("France");
+        assertThat(france).extracting("shortcode").isEqualTo("Fr");
     }
 }
