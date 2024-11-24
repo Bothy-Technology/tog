@@ -44,7 +44,7 @@ Add the annotations as a compile time dependency.
     <dependency>
         <groupId>io.bothy.tog</groupId>
         <artifactId>annotations</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.2.0</version>
     </dependency>
     ...
 </dependencies>
@@ -63,7 +63,7 @@ Add the annotation processor to the compiler config.
                         <path>
                             <groupId>io.bothy.tog</groupId>
                             <artifactId>processor</artifactId>
-                            <version>0.1.0-SNAPSHOT</version>
+                            <version>0.2.0</version>
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
