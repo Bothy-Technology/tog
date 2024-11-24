@@ -44,6 +44,7 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.scm.id>github</project.scm.id>
+        <require-maven.version>3.9.9</require-maven.version>
 
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
@@ -188,7 +189,7 @@
                     <configuration>
                         <rules>
                             <requireMavenVersion>
-                                <version>3.9.8</version>
+                                <version>${require-maven.version}</version>
                             </requireMavenVersion>
                         </rules>
                     </configuration>
