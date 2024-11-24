@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with Foobar. If not, see
  * <https://www.gnu.org/licenses/>.
  */
-package io.bothy.tog;
+package io.bothy.tog.processor;
 
 import static com.google.testing.compile.CompilationSubject.assertThat;
 import static com.google.testing.compile.Compiler.javac;
