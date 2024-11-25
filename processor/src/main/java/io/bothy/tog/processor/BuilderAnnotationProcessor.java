@@ -21,6 +21,7 @@ import static javax.lang.model.element.Modifier.STATIC;
 import com.google.auto.service.AutoService;
 import com.google.common.base.CaseFormat;
 import com.google.common.base.Converter;
+import com.google.common.collect.Lists;
 import com.palantir.javapoet.AnnotationSpec;
 import com.palantir.javapoet.ClassName;
 import com.palantir.javapoet.JavaFile;
@@ -44,9 +45,10 @@ import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
+import javax.tools.Diagnostic;
 
 @SupportedAnnotationTypes("io.bothy.tog.annotations.Builder")
-@SupportedSourceVersion(SourceVersion.RELEASE_21)
+@SupportedSourceVersion(SourceVersion.RELEASE_17)
 @AutoService(Processor.class)
 public final class BuilderAnnotationProcessor extends AbstractProcessor {
 
@@ -78,7 +80,8 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
 
                     builderTarget = new RecordBuilderTarget(typeElement);
                 } else {
-                    messager.printError(
+                    messager.printMessage(
+                            Diagnostic.Kind.ERROR,
                             "@io.bothy.tog.annotations.Builder is only applicable to records and constructors.",
                             annotatedElement);
                     continue;
@@ -103,8 +106,7 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
 
                 var nextStageTypeName = buildInterfaceClassName;
                 final var interfaces = new ArrayList<TypeSpec>();
-                for (final var field :
-                        builderFields.subList(1, builderFields.size()).reversed()) {
+                for (final var field : Lists.reverse(builderFields.subList(1, builderFields.size()))) {
 
                     final var withInterfaceName = withStageInterfaceName(field, builderClassName);
 
@@ -115,7 +117,7 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
                     nextStageTypeName = withInterfaceName;
                     interfaces.add(withInterface);
                 }
-                final var firstStageMethod = withStageMethod(builderFields.getFirst(), nextStageTypeName);
+                final var firstStageMethod = withStageMethod(builderFields.get(0), nextStageTypeName);
 
                 final var builderFactoryMethod = builderFactoryMethod(builderTarget, builderClassName);
 
@@ -124,7 +126,7 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
                         .addAnnotation(GENERATED_ANNOTATION)
                         .addMethod(builderFactoryMethod)
                         .addMethod(firstStageMethod)
-                        .addTypes(interfaces.reversed())
+                        .addTypes(Lists.reverse(interfaces))
                         .addType(buildInterfaceSpec)
                         .build();
 
@@ -134,7 +136,7 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
                 try {
                     builderJavaFile.writeTo(processingEnv.getFiler());
                 } catch (final IOException e) {
-                    messager.printError("IO Error writing file: " + e.getMessage());
+                    messager.printMessage(Diagnostic.Kind.ERROR, "IO Error writing file: " + e.getMessage());
                 }
             }
         }
@@ -173,7 +175,9 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
                 .toList();
 
         final var builderInterfaceName =
-                typeHierarchy.reversed().stream().map(Element::getSimpleName).collect(Collectors.joining()) + "Builder";
+                Lists.reverse(typeHierarchy).stream()
+                                .map(Element::getSimpleName)
+                                .collect(Collectors.joining()) + "Builder";
 
         return ClassName.get(targetPackageName, builderInterfaceName);
     }

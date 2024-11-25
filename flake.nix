@@ -21,7 +21,7 @@
       devShells.default = pkgs.mkShell {
         buildInputs = [
           pkgs.alejandra
-          pkgs.jdk21
+          pkgs.jdk17
           pkgs.maven
           pkgs.nil
         ];
