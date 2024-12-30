@@ -52,7 +52,7 @@
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
         <maven-jarsigner-plugin.version>3.1.0</maven-jarsigner-plugin.version>
-        <maven-javadoc-plugin.version>3.11.1</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -60,14 +60,14 @@
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
         <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
 
-        <assertj.version>3.26.3</assertj.version>
+        <assertj.version>3.27.0</assertj.version>
         <auto-service.version>1.1.1</auto-service.version>
         <compile-testing.version>0.21.0</compile-testing.version>
         <error_prone.version>2.36.0</error_prone.version>
-        <guava.version>33.3.1-jre</guava.version>
-        <javapoet.version>0.5.0</javapoet.version>
+        <guava.version>33.4.0-jre</guava.version>
+        <javapoet.version>0.6.0</javapoet.version>
         <jetbrains-annotations.version>26.0.1</jetbrains-annotations.version>
-        <junit.version>5.11.3</junit.version>
+        <junit.version>5.11.4</junit.version>
         <mockito.version>5.14.2</mockito.version>
         <palantir-java-format.version>2.50.0</palantir-java-format.version>
 
