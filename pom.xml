@@ -48,30 +48,30 @@
         <project.scm.id>github</project.scm.id>
         <require-maven.version>3.9.9</require-maven.version>
 
-        <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
-        <maven-deploy-plugin.version>3.1.3</maven-deploy-plugin.version>
-        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-        <maven-gpg-plugin.version>3.2.7</maven-gpg-plugin.version>
+        <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+        <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-jarsigner-plugin.version>3.1.0</maven-jarsigner-plugin.version>
         <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
         <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
-        <central-publishing-maven-plugin.version>0.6.0</central-publishing-maven-plugin.version>
-        <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+        <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
         <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
 
-        <assertj.version>3.27.0</assertj.version>
+        <assertj.version>4.0.0-M1</assertj.version>
         <auto-service.version>1.1.1</auto-service.version>
         <compile-testing.version>0.21.0</compile-testing.version>
-        <error_prone.version>2.36.0</error_prone.version>
-        <guava.version>33.4.0-jre</guava.version>
-        <javapoet.version>0.6.0</javapoet.version>
-        <jetbrains-annotations.version>26.0.1</jetbrains-annotations.version>
-        <junit.version>5.11.4</junit.version>
-        <mockito.version>5.14.2</mockito.version>
-        <palantir-java-format.version>2.50.0</palantir-java-format.version>
+        <error_prone.version>2.41.0</error_prone.version>
+        <guava.version>33.4.8-jre</guava.version>
+        <javapoet.version>0.7.0</javapoet.version>
+        <jetbrains-annotations.version>26.0.2</jetbrains-annotations.version>
+        <junit.version>6.0.0-M2</junit.version>
+        <mockito.version>5.18.0</mockito.version>
+        <palantir-java-format.version>2.73.0</palantir-java-format.version>
 
     </properties>
 
