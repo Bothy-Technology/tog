@@ -10,5 +10,6 @@
     </parent>
 
     <artifactId>tog-annotations</artifactId>
+    <name>Tog Annotations</name>
 
 </project>

@@ -10,6 +10,7 @@
     </parent>
 
     <artifactId>tog-examples</artifactId>
+    <name>Tog Examples</name>
 
     <build>
         <pluginManagement>
