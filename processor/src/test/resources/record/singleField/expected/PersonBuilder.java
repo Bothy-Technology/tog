@@ -4,6 +4,7 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("io.bothy.tog.processor.BuilderAnnotationProcessor")
+@io.bothy.tog.annotations.Generated(generator = "io.bothy.tog.processor.BuilderAnnotationProcessor")
 public interface PersonBuilder {
 
     static PersonBuilder builder() {

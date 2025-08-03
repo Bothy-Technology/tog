@@ -55,8 +55,13 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
     private static final Converter<String, String> LOWER_CAMEL_TO_UPPER_CAMEL =
             CaseFormat.LOWER_CAMEL.converterTo(CaseFormat.UPPER_CAMEL);
 
-    private static final AnnotationSpec GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
+    private static final AnnotationSpec JAVAX_GENERATED_ANNOTATION = AnnotationSpec.builder(Generated.class)
             .addMember("value", "$S", BuilderAnnotationProcessor.class.getName())
+            .build();
+
+    private static final AnnotationSpec TOG_GENERATED_ANNOTATION = AnnotationSpec.builder(
+                    io.bothy.tog.annotations.Generated.class)
+            .addMember("generator", "$S", BuilderAnnotationProcessor.class.getName())
             .build();
 
     @Override
@@ -123,7 +128,8 @@ public final class BuilderAnnotationProcessor extends AbstractProcessor {
 
                 final var builderClassSpec = TypeSpec.interfaceBuilder(builderClassName)
                         .addModifiers(PUBLIC)
-                        .addAnnotation(GENERATED_ANNOTATION)
+                        .addAnnotation(JAVAX_GENERATED_ANNOTATION)
+                        .addAnnotation(TOG_GENERATED_ANNOTATION)
                         .addMethod(builderFactoryMethod)
                         .addMethod(firstStageMethod)
                         .addTypes(Lists.reverse(interfaces))
