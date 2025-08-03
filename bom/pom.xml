@@ -10,6 +10,7 @@
 
     <artifactId>tog-bom</artifactId>
     <packaging>pom</packaging>
+    <name>Tog BOM</name>
 
     <dependencyManagement>
         <dependencies>

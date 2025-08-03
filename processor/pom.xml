@@ -9,6 +9,7 @@
     </parent>
 
     <artifactId>tog-processor</artifactId>
+    <name>Tog Processor</name>
 
     <dependencies>
 
